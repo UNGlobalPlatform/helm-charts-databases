@@ -13,7 +13,7 @@ metadata:
     app.kubernetes.io/instance: {{ .Release.Name }}
     app.kubernetes.io/component: readiness
 spec:
-  replicas: {{ if .Values.global.suspend }}0{{ else }}1{{ end }}
+  replicas: 1
   selector:
     matchLabels:
       app.kubernetes.io/instance: {{ .Release.Name }}

@@ -1,5 +1,7 @@
-global:
-  suspend: false   # no-op for this chart: there are no pods to suspend
+# NOTE: intentionally NO `global.suspend` key. Onyxia only shows the pause/suspend
+# button when the chart exposes `global.suspend`; for a serverless database there
+# is nothing to pause (the shared cluster runs regardless), so the key is omitted
+# to hide a misleading button.
 
 # The platform's shared MariaDB cluster this release provisions into.
 # Platform constants — not user-facing.
