@@ -1,0 +1,51 @@
+apiVersion: k8s.mariadb.com/v1alpha1
+kind: Database
+metadata:
+  name: {{ include "mariadb-database.fullname" . }}
+spec:
+  mariaDbRef:
+    name: {{ .Values.cluster.name }}
+    namespace: {{ .Values.cluster.namespace }}
+    waitForIt: true
+  name: {{ include "mariadb-database.dbName" . }}
+  characterSet: utf8mb4
+  # collate MUST match characterSet: the operator's default collation is utf8mb3-based
+  # and a mismatch fails database creation with MariaDB error 1253.
+  collate: utf8mb4_general_ci
+  cleanupPolicy: {{ include "mariadb-database.cleanupPolicy" . }}
+---
+apiVersion: k8s.mariadb.com/v1alpha1
+kind: User
+metadata:
+  name: {{ include "mariadb-database.fullname" . }}
+spec:
+  mariaDbRef:
+    name: {{ .Values.cluster.name }}
+    namespace: {{ .Values.cluster.namespace }}
+    waitForIt: true
+  name: {{ include "mariadb-database.userName" . }}
+  passwordSecretKeyRef:
+    name: {{ include "mariadb-database.fullname" . }}
+    key: password
+  host: "%"
+  # The per-tenant throttle on the shared cluster.
+  maxUserConnections: {{ include "mariadb-database.maxUserConnections" . }}
+  cleanupPolicy: {{ include "mariadb-database.cleanupPolicy" . }}
+---
+apiVersion: k8s.mariadb.com/v1alpha1
+kind: Grant
+metadata:
+  name: {{ include "mariadb-database.fullname" . }}
+spec:
+  mariaDbRef:
+    name: {{ .Values.cluster.name }}
+    namespace: {{ .Values.cluster.namespace }}
+    waitForIt: true
+  privileges:
+    - "ALL"
+  database: {{ include "mariadb-database.dbName" . }}
+  table: "*"
+  username: {{ include "mariadb-database.userName" . }}
+  host: "%"
+  grantOption: false
+  cleanupPolicy: {{ include "mariadb-database.cleanupPolicy" . }}

@@ -1,0 +1,95 @@
+suite: serverless database — discovery contract and tenancy naming
+templates:
+  - discovery-secret.yaml
+  - database.yaml
+  - secret.yaml
+release:
+  name: mydb
+  namespace: user-sean
+tests:
+  - it: discovery secret carries the mariadb contract with FQDN and prefixed names
+    template: discovery-secret.yaml
+    set:
+      auth: {username: alice, password: s3cret, database: books}
+    asserts:
+      - equal:
+          path: metadata.annotations["onyxia/discovery"]
+          value: "mariadb"
+      - equal:
+          path: data["mariadb-service"]
+          value: "cHJvZHVjdGlvbi5tYXJpYWRiLnN2Yy5jbHVzdGVyLmxvY2Fs"   # b64("production.mariadb.svc.cluster.local")
+      - equal:
+          path: data["mariadb-username"]
+          value: "dXNlcl9zZWFuX2FsaWNl"                               # b64("user_sean_alice")
+      - equal:
+          path: data["mariadb-database"]
+          value: "dXNlcl9zZWFuX2Jvb2tz"                               # b64("user_sean_books")
+      - equal:
+          path: data["mariadb-port"]
+          value: "MzMwNg=="                                           # b64("3306")
+  - it: SQL CRs point at the platform cluster and carry the tenant prefix
+    template: database.yaml
+    set:
+      auth: {username: alice, password: s3cret, database: books}
+    asserts:
+      - equal:
+          path: spec.mariaDbRef.name
+          value: production
+        documentIndex: 0
+      - equal:
+          path: spec.mariaDbRef.namespace
+          value: mariadb
+        documentIndex: 0
+      - equal:
+          path: spec.name
+          value: user_sean_books
+        documentIndex: 0
+      - equal:
+          path: spec.name
+          value: user_sean_alice
+        documentIndex: 1
+      - equal:
+          path: spec.maxUserConnections
+          value: 10
+        documentIndex: 1
+      - equal:
+          path: spec.database
+          value: user_sean_books
+        documentIndex: 2
+      - equal:
+          path: spec.grantOption
+          value: false
+        documentIndex: 2
+  - it: retainOnDelete maps to cleanupPolicy Skip on every SQL CR
+    template: database.yaml
+    set:
+      lifecycle: {retainOnDelete: true}
+    asserts:
+      - equal:
+          path: spec.cleanupPolicy
+          value: Skip
+        documentIndex: 0
+      - equal:
+          path: spec.cleanupPolicy
+          value: Skip
+        documentIndex: 1
+      - equal:
+          path: spec.cleanupPolicy
+          value: Skip
+        documentIndex: 2
+  - it: default lifecycle drops objects on delete
+    template: database.yaml
+    asserts:
+      - equal:
+          path: spec.cleanupPolicy
+          value: Delete
+        documentIndex: 0
+  - it: connection tier maps to maxUserConnections
+    template: database.yaml
+    set:
+      connections: {tier: large}
+    asserts:
+      - equal:
+          path: spec.maxUserConnections
+          value: 200
+        documentIndex: 1

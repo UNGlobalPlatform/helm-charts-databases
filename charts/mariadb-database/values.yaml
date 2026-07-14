@@ -1,0 +1,31 @@
+global:
+  suspend: false   # no-op for this chart: there are no pods to suspend
+
+# The platform's shared MariaDB cluster this release provisions into.
+# Platform constants — not user-facing.
+cluster:
+  name: production
+  namespace: mariadb
+  port: 3306
+
+auth:
+  username: changeme
+  password: changeme
+  # Final name on the shared cluster is prefixed with your namespace
+  # (user-sean + defaultdb -> user_sean_defaultdb).
+  database: defaultdb
+
+connections:
+  # small=10, medium=50, large=200 concurrent connections (maxUserConnections)
+  tier: small
+
+lifecycle:
+  # false: deleting this service DROPS the database and user (cleanupPolicy: Delete).
+  # true: the schema and user survive deletion (cleanupPolicy: Skip).
+  retainOnDelete: false
+
+userPreferences:
+  language: en
+
+discovery:
+  enabled: true
