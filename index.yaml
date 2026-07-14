@@ -231,6 +231,27 @@ entries:
     version: 0.2.10
   mariadb-database:
   - apiVersion: v2
+    created: "2026-07-14T21:37:12.19555616Z"
+    description: A MariaDB database on the platform's shared cluster — no server pods,
+      no storage quota. Provisions a schema, a scoped user, and connection secrets
+      via mariadb-operator SQL resources.
+    digest: 99df8bc62bb0ca7901be74de62f1cb974ede1ca6751df1fbcbd9bd2508223dd9
+    home: https://mariadb.org
+    icon: https://mariadb.com/wp-content/uploads/2019/11/mariadb-logo-vert_blue-transparent.png
+    keywords:
+    - SQL
+    - Database
+    - MariaDB
+    - Serverless
+    name: mariadb-database
+    sources:
+    - https://github.com/mariadb-operator/mariadb-operator
+    - https://github.com/UNGlobalPlatform/helm-charts-databases
+    type: application
+    urls:
+    - https://github.com/UNGlobalPlatform/helm-charts-databases/releases/download/mariadb-database-0.1.2/mariadb-database-0.1.2.tgz
+    version: 0.1.2
+  - apiVersion: v2
     created: "2026-07-14T18:51:55.298900836Z"
     description: A MariaDB database on the platform's shared cluster — no server pods,
       no storage quota. Provisions a schema, a scoped user, and connection secrets
@@ -600,4 +621,4 @@ entries:
     urls:
     - https://github.com/UNGlobalPlatform/helm-charts-databases/releases/download/trino-1.0.10/trino-1.0.10.tgz
     version: 1.0.10
-generated: "2026-07-14T18:51:55.298915608Z"
+generated: "2026-07-14T21:37:12.195570614Z"
