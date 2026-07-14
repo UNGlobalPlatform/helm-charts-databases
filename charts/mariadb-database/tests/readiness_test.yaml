@@ -1,0 +1,55 @@
+suite: readiness marker (Onyxia UI ready-signal)
+templates:
+  - readiness.yaml
+release:
+  name: mydb
+  namespace: user-sean
+tests:
+  - it: renders a Deployment labelled so onyxia-api associates its pod with the release
+    asserts:
+      - isKind:
+          of: Deployment
+      - equal:
+          path: metadata.labels["app.kubernetes.io/instance"]
+          value: mydb
+      # onyxia-api lists pods by this exact label to populate `tasks`
+      - equal:
+          path: spec.template.metadata.labels["app.kubernetes.io/instance"]
+          value: mydb
+      - equal:
+          path: spec.template.metadata.labels["app.kubernetes.io/component"]
+          value: readiness
+  - it: every container declares cpu AND memory limits (Onyxia namespace ResourceQuota requires limits.cpu)
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].resources.limits.cpu
+          value: 50m
+      - equal:
+          path: spec.template.spec.containers[0].resources.limits.memory
+          value: 16Mi
+      - equal:
+          path: spec.template.spec.initContainers[0].resources.limits.cpu
+          value: 50m
+      - equal:
+          path: spec.template.spec.initContainers[0].resources.limits.memory
+          value: 16Mi
+  - it: readiness probe gates on shared-cluster reachability
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[0].readinessProbe.exec.command
+          content: nc -z "$MARIADB_HOST" "$MARIADB_PORT"
+  - it: suspend scales the marker to zero
+    set:
+      global:
+        suspend: true
+    asserts:
+      - equal:
+          path: spec.replicas
+          value: 0
+  - it: disabling readiness renders nothing (headless/GitOps consumption)
+    set:
+      readiness:
+        enabled: false
+    asserts:
+      - hasDocuments:
+          count: 0

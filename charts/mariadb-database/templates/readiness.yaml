@@ -1,0 +1,69 @@
+{{- if (default dict .Values.readiness).enabled }}
+# Onyxia derives a service's "ready" state from the readiness of the pods in the
+# release's namespace. This chart provisions the database on the SHARED cluster
+# and otherwise creates no pods here, so without this marker the Onyxia UI spins
+# forever. This is a near-zero-footprint busybox pod whose readiness == "the
+# shared MariaDB is reachable on the network", giving Onyxia an honest signal.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "mariadb-database.fullname" . }}-ready
+  labels:
+    app.kubernetes.io/name: {{ include "mariadb-database.name" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/component: readiness
+spec:
+  replicas: {{ if .Values.global.suspend }}0{{ else }}1{{ end }}
+  selector:
+    matchLabels:
+      app.kubernetes.io/instance: {{ .Release.Name }}
+      app.kubernetes.io/component: readiness
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: {{ include "mariadb-database.name" . }}
+        app.kubernetes.io/instance: {{ .Release.Name }}
+        app.kubernetes.io/component: readiness
+    spec:
+      # Disposable marker — fine on spot capacity.
+      automountServiceAccountToken: false
+      initContainers:
+        # Block until the shared cluster's port is reachable, so the pod only
+        # becomes Ready once the database this release provisioned is usable.
+        - name: wait-for-db
+          image: {{ .Values.readiness.image }}
+          command: ["sh", "-c"]
+          args:
+            - until nc -z "$MARIADB_HOST" "$MARIADB_PORT"; do echo "waiting for $MARIADB_HOST:$MARIADB_PORT"; sleep 2; done
+          env:
+            - name: MARIADB_HOST
+              valueFrom: { secretKeyRef: { name: {{ include "mariadb-database.fullname" . }}, key: host } }
+            - name: MARIADB_PORT
+              valueFrom: { secretKeyRef: { name: {{ include "mariadb-database.fullname" . }}, key: port } }
+          resources:
+            requests: { cpu: 1m, memory: 8Mi }
+            limits: { cpu: 50m, memory: 16Mi }
+      containers:
+        - name: marker
+          image: {{ .Values.readiness.image }}
+          command: ["sh", "-c", "trap 'exit 0' TERM; while true; do sleep 3600 & wait; done"]
+          env:
+            - name: MARIADB_HOST
+              valueFrom: { secretKeyRef: { name: {{ include "mariadb-database.fullname" . }}, key: host } }
+            - name: MARIADB_PORT
+              valueFrom: { secretKeyRef: { name: {{ include "mariadb-database.fullname" . }}, key: port } }
+          # Readiness reflects live reachability of the shared cluster.
+          readinessProbe:
+            exec:
+              command: ["sh", "-c", "nc -z \"$MARIADB_HOST\" \"$MARIADB_PORT\""]
+            initialDelaySeconds: 2
+            periodSeconds: 10
+          resources:
+            requests: { cpu: 1m, memory: 8Mi }
+            limits: { cpu: 50m, memory: 16Mi }
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        seccompProfile:
+          type: RuntimeDefault
+{{- end }}
