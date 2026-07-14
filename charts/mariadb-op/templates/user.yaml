@@ -1,0 +1,28 @@
+apiVersion: k8s.mariadb.com/v1alpha1
+kind: User
+metadata:
+  name: {{ include "mariadb-op.fullname" . }}-user
+spec:
+  mariaDbRef:
+    name: {{ include "mariadb-op.fullname" . }}
+  name: {{ .Values.auth.username }}
+  # User CRs cannot auto-generate passwords (no generate field) — the password
+  # comes from the chart-managed secret below.
+  passwordSecretKeyRef:
+    name: {{ include "mariadb-op.fullname" . }}
+    key: password
+  host: "%"
+---
+apiVersion: k8s.mariadb.com/v1alpha1
+kind: Grant
+metadata:
+  name: {{ include "mariadb-op.fullname" . }}-grant
+spec:
+  mariaDbRef:
+    name: {{ include "mariadb-op.fullname" . }}
+  privileges:
+    - "ALL"
+  database: {{ .Values.auth.database }}
+  table: "*"
+  username: {{ .Values.auth.username }}
+  host: "%"

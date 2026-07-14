@@ -1,0 +1,12 @@
+apiVersion: k8s.mariadb.com/v1alpha1
+kind: Database
+metadata:
+  name: {{ include "mariadb-op.fullname" . }}-database
+spec:
+  mariaDbRef:
+    name: {{ include "mariadb-op.fullname" . }}
+  name: {{ .Values.auth.database }}
+  characterSet: utf8mb4
+  # collate MUST match characterSet: the operator's default collation is utf8mb3-based
+  # and a mismatch fails database creation with MariaDB error 1253.
+  collate: utf8mb4_general_ci

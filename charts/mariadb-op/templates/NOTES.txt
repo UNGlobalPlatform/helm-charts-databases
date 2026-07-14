@@ -1,0 +1,141 @@
+{{- if eq .Values.userPreferences.language "fr" }}
+- Vous pouvez vous connecter à ce service (depuis l'intérieur du cluster) avec les informations de connexion suivantes :
+    - Hostname : **{{ include "mariadb-op.fullname" . }}.{{ .Release.Namespace }}**
+    - Port : **{{ .Values.port }}**
+    - Database : **{{ .Values.auth.database }}**
+    - Username : **{{ .Values.auth.username }}**
+    - Password : **{{ .Values.auth.password }}**
+
+Si vous avez besoin d'un accès admin à cette base de données, les informations de connexion sont :
+
+Admin username : root
+Admin password : **{{ .Values.auth.password }}**
+
+<details>
+  <summary>Renseigner les variables d'environment</summary>
+
+⚠️ Ces lignes ne doivent pas faire partie du code de votre projet ni être rendues publiques ⚠️
+
+```sh
+export MARIADB_HOST="{{ include "mariadb-op.fullname" . }}.{{ .Release.Namespace }}"
+export MARIADB_DATABASE="{{ .Values.auth.database }}"
+export MARIADB_USER="{{ .Values.auth.username }}"
+export MARIADB_PASSWORD="{{ .Values.auth.password }}"
+export MARIADB_PORT="{{ .Values.port }}"
+```
+</details>
+
+<details>
+  <summary>Se connecter avec Python</summary>
+
+Commencer par renseigner les variables d'environment.
+
+```python
+import os
+import pymysql
+conn = pymysql.connect(
+    host=os.environ["MARIADB_HOST"],
+    port=int(os.environ["MARIADB_PORT"]),
+    user=os.environ["MARIADB_USER"],
+    password=os.environ["MARIADB_PASSWORD"],
+    database=os.environ["MARIADB_DATABASE"],
+)
+with conn.cursor() as cur:
+    cur.execute("SELECT VERSION();")
+    print(cur.fetchone())
+conn.close()
+```
+</details>
+
+<details>
+  <summary>Se connecter avec R</summary>
+
+Commencer par renseigner les variables d'environment.
+
+```r
+library(DBI)
+conn <- dbConnect(
+  RMariaDB::MariaDB(),
+  host = Sys.getenv("MARIADB_HOST"),
+  port = as.integer(Sys.getenv("MARIADB_PORT")),
+  user = Sys.getenv("MARIADB_USER"),
+  password = Sys.getenv("MARIADB_PASSWORD"),
+  dbname = Sys.getenv("MARIADB_DATABASE")
+)
+print(dbGetQuery(conn, "SELECT VERSION();"))
+dbDisconnect(conn)
+```
+</details>
+{{- else }}
+  {{- if ne .Values.userPreferences.language "en" -}}
+*NOTES are not supported for language `{{ .Values.userPreferences.language }}`... Defaulting to english.*
+
+  {{ end -}}
+- You can connect to this service (within the cluster itself) using the following connection information :
+    - Hostname : **{{ include "mariadb-op.fullname" . }}.{{ .Release.Namespace }}**
+    - Port : **{{ .Values.port }}**
+    - Database : **{{ .Values.auth.database }}**
+    - Username : **{{ .Values.auth.username }}**
+    - Password : **{{ .Values.auth.password }}**
+
+If you need admin access to this database, the connection information are :
+
+Admin username : root
+Admin password : **{{ .Values.auth.password }}**
+
+<details>
+  <summary>Setup environment variables</summary>
+
+⚠️ These lines must not be included in your project's codebase, or otherwise published ⚠️
+
+```sh
+export MARIADB_HOST="{{ include "mariadb-op.fullname" . }}.{{ .Release.Namespace }}"
+export MARIADB_DATABASE="{{ .Values.auth.database }}"
+export MARIADB_USER="{{ .Values.auth.username }}"
+export MARIADB_PASSWORD="{{ .Values.auth.password }}"
+export MARIADB_PORT="{{ .Values.port }}"
+```
+</details>
+
+<details>
+  <summary>Connect with Python</summary>
+
+First set environment variables.
+
+```python
+import os
+import pymysql
+conn = pymysql.connect(
+    host=os.environ["MARIADB_HOST"],
+    port=int(os.environ["MARIADB_PORT"]),
+    user=os.environ["MARIADB_USER"],
+    password=os.environ["MARIADB_PASSWORD"],
+    database=os.environ["MARIADB_DATABASE"],
+)
+with conn.cursor() as cur:
+    cur.execute("SELECT VERSION();")
+    print(cur.fetchone())
+conn.close()
+```
+</details>
+
+<details>
+  <summary>Connect with R</summary>
+
+First set environment variables.
+
+```r
+library(DBI)
+conn <- dbConnect(
+  RMariaDB::MariaDB(),
+  host = Sys.getenv("MARIADB_HOST"),
+  port = as.integer(Sys.getenv("MARIADB_PORT")),
+  user = Sys.getenv("MARIADB_USER"),
+  password = Sys.getenv("MARIADB_PASSWORD"),
+  dbname = Sys.getenv("MARIADB_DATABASE")
+)
+print(dbGetQuery(conn, "SELECT VERSION();"))
+dbDisconnect(conn)
+```
+</details>
+{{- end -}}
