@@ -1,0 +1,50 @@
+suite: MariaDB / Database / User CRs
+templates:
+  - mariadb.yaml
+  - database.yaml
+  - user.yaml
+tests:
+  - it: pins the database to on-demand nodes and runs one replica
+    template: mariadb.yaml
+    asserts:
+      - isKind:
+          of: MariaDB
+      - equal:
+          path: spec.replicas
+          value: 1
+      - equal:
+          path: spec.nodeSelector["spotinst.io/node-lifecycle"]
+          value: "od"
+      - equal:
+          path: spec.storage.resizeInUseVolumes
+          value: true
+  - it: suspend scales to zero replicas
+    template: mariadb.yaml
+    set:
+      global:
+        suspend: true
+    asserts:
+      - equal:
+          path: spec.replicas
+          value: 0
+  - it: database collation matches the character set (operator default mismatch fails creation)
+    template: database.yaml
+    asserts:
+      - equal:
+          path: spec.characterSet
+          value: utf8mb4
+      - equal:
+          path: spec.collate
+          value: utf8mb4_general_ci
+  - it: user password comes from the chart-managed secret
+    template: user.yaml
+    documentIndex: 0
+    asserts:
+      - isKind:
+          of: User
+      - equal:
+          path: spec.passwordSecretKeyRef.name
+          value: RELEASE-NAME-mariadb-op
+      - equal:
+          path: spec.passwordSecretKeyRef.key
+          value: password

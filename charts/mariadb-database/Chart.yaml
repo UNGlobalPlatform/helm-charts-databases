@@ -1,0 +1,19 @@
+apiVersion: v2
+name: mariadb-database
+description: A MariaDB database on the platform's shared cluster — no server pods, no storage quota. Provisions a schema, a scoped user, and connection secrets via mariadb-operator SQL resources.
+icon: https://mariadb.com/wp-content/uploads/2019/11/mariadb-logo-vert_blue-transparent.png
+keywords:
+  - SQL
+  - Database
+  - MariaDB
+  - Serverless
+home: https://mariadb.org
+sources:
+  - https://github.com/mariadb-operator/mariadb-operator
+  - https://github.com/UNGlobalPlatform/helm-charts-databases
+type: application
+
+# This is the chart version. This version number should be incremented each time you make changes
+# to the chart and its templates, including the app version.
+# Versions are expected to follow Semantic Versioning (https://semver.org/)
+version: 0.1.0

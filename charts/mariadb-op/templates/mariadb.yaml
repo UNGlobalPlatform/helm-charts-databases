@@ -1,0 +1,29 @@
+apiVersion: k8s.mariadb.com/v1alpha1
+kind: MariaDB
+metadata:
+  name: {{ include "mariadb-op.fullname" . }}
+spec:
+  {{- if .Values.global.suspend }}
+  replicas: 0
+  {{- else }}
+  replicas: 1
+  {{- end }}
+  rootPasswordSecretKeyRef:
+    name: {{ include "mariadb-op.fullname" . }}-root
+    key: password
+  port: {{ .Values.port }}
+  storage:
+    size: {{ .Values.storage.size }}
+    resizeInUseVolumes: true
+    waitForVolumeResize: true
+    # Delete the PVC when the release is uninstalled (no orphaned EBS volumes in
+    # user namespaces), but RETAIN it when scaled down — suspend must not lose data.
+    pvcRetentionPolicy:
+      whenDeleted: Delete
+      whenScaled: Retain
+  resources:
+    {{- toYaml .Values.resources | nindent 4 }}
+  {{- with .Values.nodeSelector }}
+  nodeSelector:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}

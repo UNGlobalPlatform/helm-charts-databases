@@ -1,0 +1,64 @@
+{{- $host := include "mariadb-database.host" . }}
+{{- $db := include "mariadb-database.dbName" . }}
+{{- $user := include "mariadb-database.userName" . }}
+{{- if eq .Values.userPreferences.language "fr" }}
+- Cette base de données vit sur le cluster MariaDB partagé de la plateforme — ce service ne déploie **aucun pod**.
+- Vous pouvez vous y connecter (depuis l'intérieur du cluster) avec les informations suivantes :
+    - Hostname : **{{ $host }}**
+    - Port : **{{ .Values.cluster.port }}**
+    - Database : **{{ $db }}**
+    - Username : **{{ $user }}**
+    - Password : **{{ .Values.auth.password }}**
+
+{{- if .Values.lifecycle.retainOnDelete }}
+- À la suppression de ce service, la base de données et l'utilisateur seront **conservés** sur le cluster.
+{{- else }}
+- ⚠️ À la suppression de ce service, la base de données et l'utilisateur seront **supprimés définitivement**.
+{{- end }}
+
+<details>
+  <summary>Renseigner les variables d'environment</summary>
+
+⚠️ Ces lignes ne doivent pas faire partie du code de votre projet ni être rendues publiques ⚠️
+
+```sh
+export MARIADB_HOST="{{ $host }}"
+export MARIADB_DATABASE="{{ $db }}"
+export MARIADB_USER="{{ $user }}"
+export MARIADB_PASSWORD="{{ .Values.auth.password }}"
+export MARIADB_PORT="{{ .Values.cluster.port }}"
+```
+</details>
+{{- else }}
+  {{- if ne .Values.userPreferences.language "en" -}}
+*NOTES are not supported for language `{{ .Values.userPreferences.language }}`... Defaulting to english.*
+
+  {{ end -}}
+- This database lives on the platform's shared MariaDB cluster — this service deploys **no pods**.
+- You can connect to it (within the cluster itself) using the following connection information :
+    - Hostname : **{{ $host }}**
+    - Port : **{{ .Values.cluster.port }}**
+    - Database : **{{ $db }}**
+    - Username : **{{ $user }}**
+    - Password : **{{ .Values.auth.password }}**
+
+{{- if .Values.lifecycle.retainOnDelete }}
+- When this service is deleted, the database and user are **kept** on the cluster.
+{{- else }}
+- ⚠️ When this service is deleted, the database and user are **dropped permanently**.
+{{- end }}
+
+<details>
+  <summary>Setup environment variables</summary>
+
+⚠️ These lines must not be included in your project's codebase, or otherwise published ⚠️
+
+```sh
+export MARIADB_HOST="{{ $host }}"
+export MARIADB_DATABASE="{{ $db }}"
+export MARIADB_USER="{{ $user }}"
+export MARIADB_PASSWORD="{{ .Values.auth.password }}"
+export MARIADB_PORT="{{ .Values.cluster.port }}"
+```
+</details>
+{{- end -}}

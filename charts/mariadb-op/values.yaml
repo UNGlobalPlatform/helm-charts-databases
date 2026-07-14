@@ -1,0 +1,35 @@
+global:
+  suspend: false
+
+auth:
+  username: changeme
+  password: changeme
+  database: defaultdb
+
+port: 3306
+
+storage:
+  # NOTE: on EBS gp3 storage classes that pin provisioned IOPS (3000), volumes
+  # below 6Gi violate the 500:1 IOPS-to-GiB ratio and fail to provision.
+  size: 10Gi
+
+resources:
+  limits: {}
+  requests:
+    memory: 512Mi
+    cpu: 250m
+
+# Databases hold state — keep them off spot capacity. On Ocean-managed clusters
+# (Flexera Spot) this label pins the pod to on-demand nodes.
+nodeSelector:
+  spotinst.io/node-lifecycle: od
+
+security:
+  networkPolicy:
+    enabled: false
+
+userPreferences:
+  language: en
+
+discovery:
+  enabled: true

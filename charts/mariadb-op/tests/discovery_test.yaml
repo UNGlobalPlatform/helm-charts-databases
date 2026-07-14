@@ -1,0 +1,44 @@
+suite: discovery secret contract
+templates:
+  - discovery-secret.yaml
+tests:
+  - it: emits the mariadb discovery contract (keys consumed by cloudbeaver/TDT)
+    set:
+      auth:
+        username: alice
+        password: s3cret
+        database: mydb
+    asserts:
+      - isKind:
+          of: Secret
+      - equal:
+          path: metadata.annotations["onyxia/discovery"]
+          value: "mariadb"
+      - equal:
+          path: metadata.name
+          value: "discoverable-RELEASE-NAME-mariadb-op"
+      - equal:
+          path: data["mariadb-service"]
+          value: "UkVMRUFTRS1OQU1FLW1hcmlhZGItb3A="   # b64("RELEASE-NAME-mariadb-op")
+      - equal:
+          path: data["mariadb-username"]
+          value: "YWxpY2U="                           # b64("alice")
+      - equal:
+          path: data["mariadb-password"]
+          value: "czNjcmV0"                           # b64("s3cret")
+      - equal:
+          path: data["password"]
+          value: "czNjcmV0"
+      - equal:
+          path: data["mariadb-database"]
+          value: "bXlkYg=="                           # b64("mydb")
+      - equal:
+          path: data["mariadb-port"]
+          value: "MzMwNg=="                           # b64("3306") — MUST be base64, unlike the upstream quirk
+  - it: renders nothing when discovery is disabled
+    set:
+      discovery:
+        enabled: false
+    asserts:
+      - hasDocuments:
+          count: 0

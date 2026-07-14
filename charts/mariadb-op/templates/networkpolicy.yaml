@@ -1,0 +1,16 @@
+{{- if ((.Values.security).networkPolicy).enabled -}}
+kind: NetworkPolicy
+apiVersion: networking.k8s.io/v1
+metadata:
+  name: {{ include "mariadb-op.fullname" . }}
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: mariadb
+      app.kubernetes.io/instance: {{ include "mariadb-op.fullname" . }}
+  ingress:
+  - from:
+    - podSelector: {}
+  policyTypes:
+  - Ingress
+{{- end }}

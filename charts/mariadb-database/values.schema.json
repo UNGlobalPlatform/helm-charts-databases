@@ -1,0 +1,139 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema",
+    "type": "object",
+    "properties": {
+        "global": {
+            "description": "Suspend",
+            "type": "object",
+            "properties": {
+                "suspend": {
+                    "type": "boolean",
+                    "description": "Suspend this service (no effect: this service runs no pods)",
+                    "default": false,
+                    "x-onyxia": {
+                        "hidden": true
+                    }
+                }
+            }
+        },
+        "cluster": {
+            "title": "Platform cluster",
+            "description": "The shared MariaDB cluster this database is provisioned into (platform-managed)",
+            "type": "object",
+            "x-onyxia": {
+                "hidden": true
+            },
+            "properties": {
+                "name": {
+                    "title": "Cluster name",
+                    "type": "string",
+                    "default": "production"
+                },
+                "namespace": {
+                    "title": "Cluster namespace",
+                    "type": "string",
+                    "default": "mariadb"
+                },
+                "port": {
+                    "title": "Port",
+                    "type": "integer",
+                    "default": 3306
+                }
+            }
+        },
+        "auth": {
+            "title": "Database authentication",
+            "type": "object",
+            "properties": {
+                "username": {
+                    "title": "User name",
+                    "description": "Final name is prefixed with your namespace",
+                    "type": "string",
+                    "default": "admin",
+                    "pattern": "^[a-z][a-z0-9_]{0,20}$",
+                    "x-form": {
+                        "value": "{{project.id}}"
+                    },
+                    "x-onyxia": {
+                        "overwriteDefaultWith": "{{project.id}}"
+                    }
+                },
+                "password": {
+                    "title": "User password",
+                    "type": "string",
+                    "default": "changeme",
+                    "render": "password",
+                    "x-form": {
+                        "value": "{{project.password}}"
+                    },
+                    "x-onyxia": {
+                        "overwriteDefaultWith": "{{project.password}}"
+                    }
+                },
+                "database": {
+                    "title": "Database name",
+                    "description": "Will be created on the shared cluster; final name is prefixed with your namespace",
+                    "type": "string",
+                    "default": "defaultdb",
+                    "pattern": "^[a-z][a-z0-9_]{0,20}$"
+                }
+            }
+        },
+        "connections": {
+            "title": "Connections",
+            "type": "object",
+            "properties": {
+                "tier": {
+                    "title": "Connection tier",
+                    "description": "Maximum concurrent connections: small=10, medium=50, large=200",
+                    "type": "string",
+                    "default": "small",
+                    "listEnum": [
+                        "small",
+                        "medium",
+                        "large"
+                    ]
+                }
+            }
+        },
+        "lifecycle": {
+            "title": "Lifecycle",
+            "type": "object",
+            "properties": {
+                "retainOnDelete": {
+                    "title": "Keep data when this service is deleted",
+                    "description": "If enabled, the database and user survive deletion of this service and can be re-attached later",
+                    "type": "boolean",
+                    "default": false
+                }
+            }
+        },
+        "discovery": {
+            "title": "Database discovery",
+            "type": "object",
+            "properties": {
+                "enabled": {
+                    "title": "Enabled discovery",
+                    "description": "Allows clients to automatically preconfigure a connection to this database",
+                    "type": "boolean",
+                    "default": true
+                }
+            }
+        },
+        "userPreferences": {
+            "title": "User Preferences",
+            "type": "object",
+            "properties": {
+                "language": {
+                    "title": "Preferred language",
+                    "type": "string",
+                    "default": "en",
+                    "x-onyxia": {
+                        "hidden": true,
+                        "overwriteDefaultWith": "user.lang"
+                    }
+                }
+            }
+        }
+    }
+}

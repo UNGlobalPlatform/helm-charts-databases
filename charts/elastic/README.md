@@ -1,6 +1,6 @@
 # elastic
 
-![Version: 2.1.0](https://img.shields.io/badge/Version-2.1.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 8.17.1](https://img.shields.io/badge/AppVersion-8.17.1-informational?style=flat-square)
+![Version: 2.1.1](https://img.shields.io/badge/Version-2.1.1-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 8.17.1](https://img.shields.io/badge/AppVersion-8.17.1-informational?style=flat-square)
 
 Elasticsearch provides a full-text search engine with an HTTP web interface and schema-free JSON documents.
 
@@ -22,7 +22,7 @@ Elasticsearch provides a full-text search engine with an HTTP web interface and 
 
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
-| discovery.allow | bool | `true` |  |
+| discovery.enabled | bool | `true` |  |
 | elasticsearch.copyTlsCerts.image.repository | string | `"bitnamilegacy/os-shell"` |  |
 | elasticsearch.fullnameOverride | string | `"elastic-elasticsearch"` |  |
 | elasticsearch.image.digest | string | `""` |  |
