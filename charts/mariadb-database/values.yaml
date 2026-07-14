@@ -29,3 +29,12 @@ userPreferences:
 
 discovery:
   enabled: true
+
+# A tiny marker pod so Onyxia can detect the service as "ready" (this chart
+# otherwise creates no pods in the user's namespace). Its readiness reflects
+# network reachability of the shared cluster. Disable for headless/GitOps use
+# (e.g. an app consuming the database via discovery) where the UI signal is
+# irrelevant.
+readiness:
+  enabled: true
+  image: busybox:1.36
