@@ -38,14 +38,6 @@ tests:
       - contains:
           path: spec.template.spec.containers[0].readinessProbe.exec.command
           content: nc -z "$MARIADB_HOST" "$MARIADB_PORT"
-  - it: suspend scales the marker to zero
-    set:
-      global:
-        suspend: true
-    asserts:
-      - equal:
-          path: spec.replicas
-          value: 0
   - it: disabling readiness renders nothing (headless/GitOps consumption)
     set:
       readiness:

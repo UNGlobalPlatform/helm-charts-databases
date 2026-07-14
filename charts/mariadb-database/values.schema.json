@@ -2,20 +2,6 @@
     "$schema": "http://json-schema.org/draft-07/schema",
     "type": "object",
     "properties": {
-        "global": {
-            "description": "Suspend",
-            "type": "object",
-            "properties": {
-                "suspend": {
-                    "type": "boolean",
-                    "description": "Suspend this service (no effect: this service runs no pods)",
-                    "default": false,
-                    "x-onyxia": {
-                        "hidden": true
-                    }
-                }
-            }
-        },
         "cluster": {
             "title": "Platform cluster",
             "description": "The shared MariaDB cluster this database is provisioned into (platform-managed)",
