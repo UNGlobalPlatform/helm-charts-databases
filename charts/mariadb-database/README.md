@@ -1,6 +1,6 @@
 # mariadb-database
 
-![Version: 0.1.2](https://img.shields.io/badge/Version-0.1.2-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square)
+![Version: 0.1.3](https://img.shields.io/badge/Version-0.1.3-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square)
 
 A MariaDB database on the platform's shared cluster — no server pods, no storage quota. Provisions a schema, a scoped user, and connection secrets via mariadb-operator SQL resources.
 
