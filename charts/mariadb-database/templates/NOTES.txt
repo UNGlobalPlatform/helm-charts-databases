@@ -29,6 +29,31 @@ export MARIADB_PASSWORD="{{ .Values.auth.password }}"
 export MARIADB_PORT="{{ .Values.cluster.port }}"
 ```
 </details>
+
+<details>
+  <summary>Se connecter avec Python</summary>
+
+Renseignez d'abord les variables d'environment ci-dessus, puis (`pip install PyMySQL sqlalchemy`) :
+
+```python
+import os
+from sqlalchemy import create_engine, text
+
+url = "mysql+pymysql://{u}:{p}@{h}:{port}/{db}".format(
+    u=os.environ["MARIADB_USER"], p=os.environ["MARIADB_PASSWORD"],
+    h=os.environ["MARIADB_HOST"], port=os.environ["MARIADB_PORT"],
+    db=os.environ["MARIADB_DATABASE"])
+engine = create_engine(url, pool_pre_ping=True)
+
+with engine.begin() as conn:
+    print("Connecté à :", conn.execute(text("SELECT VERSION()")).scalar())
+    conn.execute(text("CREATE TABLE IF NOT EXISTS notes (id INT PRIMARY KEY AUTO_INCREMENT, body VARCHAR(255))"))
+    conn.execute(text("INSERT INTO notes (body) VALUES (:b)"), {"b": "ma première ligne"})
+
+import pandas as pd
+print(pd.read_sql("SELECT * FROM notes", engine))
+```
+</details>
 {{- else }}
   {{- if ne .Values.userPreferences.language "en" -}}
 *NOTES are not supported for language `{{ .Values.userPreferences.language }}`... Defaulting to english.*
@@ -59,6 +84,31 @@ export MARIADB_DATABASE="{{ $db }}"
 export MARIADB_USER="{{ $user }}"
 export MARIADB_PASSWORD="{{ .Values.auth.password }}"
 export MARIADB_PORT="{{ .Values.cluster.port }}"
+```
+</details>
+
+<details>
+  <summary>Connect with Python</summary>
+
+First set the environment variables above, then (`pip install PyMySQL sqlalchemy`):
+
+```python
+import os
+from sqlalchemy import create_engine, text
+
+url = "mysql+pymysql://{u}:{p}@{h}:{port}/{db}".format(
+    u=os.environ["MARIADB_USER"], p=os.environ["MARIADB_PASSWORD"],
+    h=os.environ["MARIADB_HOST"], port=os.environ["MARIADB_PORT"],
+    db=os.environ["MARIADB_DATABASE"])
+engine = create_engine(url, pool_pre_ping=True)
+
+with engine.begin() as conn:
+    print("Connected to:", conn.execute(text("SELECT VERSION()")).scalar())
+    conn.execute(text("CREATE TABLE IF NOT EXISTS notes (id INT PRIMARY KEY AUTO_INCREMENT, body VARCHAR(255))"))
+    conn.execute(text("INSERT INTO notes (body) VALUES (:b)"), {"b": "my first row"})
+
+import pandas as pd
+print(pd.read_sql("SELECT * FROM notes", engine))
 ```
 </details>
 {{- end -}}
