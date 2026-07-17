@@ -1,0 +1,42 @@
+suite: discovery secret encoding (data fields MUST be real base64)
+templates:
+  - discovery-secret.yaml
+release:
+  name: mydb
+  namespace: user-sean
+tests:
+  # "3306" happens to be valid base64 ALPHABET, so the API server accepts it
+  # raw — but consumers must b64-decode data: fields, and b64dec("3306") is
+  # the garbage bytes \xdf}: . The port must be genuinely encoded.
+  - it: the port is base64-encoded like every other data field
+    set:
+      mariadb:
+        auth:
+          rootPassword: rpw
+          username: u1
+          password: pw1
+          database: db1
+    asserts:
+      - equal:
+          path: data["mariadb-port"]
+          # b64("3306")
+          value: MzMwNg==
+  # `default ".Values.x"` (a quoted string!) used to publish the literal
+  # template-path text as the credential when a value was unset.
+  - it: unset values publish as empty, not as literal ".Values..." strings
+    asserts:
+      - equal:
+          path: data["mariadb-username"]
+          # b64("") == ""
+          value: ""
+      - notEqual:
+          path: data["password"]
+          # b64(".Values.mariadb.auth.password")
+          value: Li5WYWx1ZXMubWFyaWFkYi5hdXRoLnBhc3N3b3Jk
+  - it: discovery can be disabled
+    set:
+      discovery:
+        enabled: false
+    asserts:
+      - hasDocuments:
+          count: 0
